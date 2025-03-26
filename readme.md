@@ -4,12 +4,13 @@
 
 **The Eye** est une plateforme complète alliant surveillance en temps réel et prédiction d'activités suspectes grâce à des modèles de machine learning avancés.
 
+---
+
 ## 🔍 Algorithmes de Prédiction
 
 ### 🛠️ Stack Technologique
-![Scikit-learn](https://img.shields.io/badge/Scikit--learn-1.2+-blue?logo=scikit-learn)
-![XGBoost](https://img.shields.io/badge/XGBoost-1.7+-green?logo=xgboost)
-![TensorFlow](https://img.shields.io/badge/TensorFlow-2.12+-orange?logo=tensorflow)
+
+![Scikit-learn](https://img.shields.io/badge/Scikit--learn-1.2+-blue?logo=scikit-learn) ![XGBoost](https://img.shields.io/badge/XGBoost-1.7+-green?logo=xgboost) ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.12+-orange?logo=tensorflow)
 
 ### 📊 Pipeline de Prédiction
 ```mermaid
@@ -22,40 +23,37 @@ graph TD
     E --> G[Prédiction]
     F --> G
     G --> H[Dashboard]
+```
 
-    Modèles Implémentés
+### 📈 Modèles Implémentés
 
-Modèle	  Précision	  Recall	Cas d'utilisation
+| Modèle         | Précision | Recall | Cas d'utilisation         |
+|---------------|-----------|--------|---------------------------|
+| Random Forest | 92%       | 89%    | Détection d'intrusions    |
+| XGBoost       | 94%       | 91%    | Prédiction temporelle     |
+| LSTM          | 89%       | 85%    | Séries temporelles complexes |
 
-Random Forest 92%	   89%	   Détection d'intrusions
+### 🔑 Features Clés
 
-XGBoost	      94%	   91%	   Prédiction temporelle
+- Variables temporelles (heures, jours, saisons)
+- Densité d'objets détectés par YOLO
+- Mouvements (vitesse, direction)
+- Contexte géographique (zone sensible, historique)
 
-LSTM	      89%	   85%	  Séries temporelles complexes
+---
 
+## 🌟 Fonctionnalités Principales
 
+- 🤖 Algorithme hybride (YOLOv8 + Random Forest)
+- ⏳ Prédiction proactive (15-30 min à l'avance)
+- 🔄 Auto-apprentissage continu
+- 📉 Analyse des tendances long terme
 
-📈 Features Clés
+---
 
-Variables temporelles (heures, jours, saisons)
+## 🖥️ Interface Utilisateur
 
-Densité d'objets détectés par YOLO
-
-Mouvements (vitesse, direction)
-
-Contexte géographique (zone sensible, historique)
-
-
-🌟 Fonctionnalités Principales 
-
-🤖 Algorithme hybride (YOLOv8 + Random Forest)
-⏳ Prédiction proactive (15-30 min à l'avance)
-🔄 Auto-apprentissage continu
-📉 Analyse des tendances long terme
-
-🖥️ Interface Utilisateur
-
-![Bannière du projet](static/images/banner.png)
+![Interface](static/images/banner.png)
 
 L'interface comprend :
 
@@ -65,37 +63,46 @@ L'interface comprend :
 - Contrôles rapides (drones, patrouilles)
 - Système de filtres avancés
 
+---
 
-⚙️ Installation
+## ⚙️ Installation
 
-1. Prérequis :
+### 1️⃣ Prérequis
 
-Python 3.9+
-NVIDIA GPU (recommandé)
+- Python 3.9+
+- NVIDIA GPU (recommandé)
 
-2. Configuration :
+### 2️⃣ Installation
 
+```bash
 git clone https://github.com/agentLakh/the_eye.git
 cd the_eye
 pip install -r requirements.txt
+```
 
-3. Configuration des variables d'environnement :
-Créez un fichier config.py avec :
+### 3️⃣ Configuration des variables d'environnement
 
+Créez un fichier `config.py` avec :
+
+```python
 TELEGRAM_BOT_TOKEN = "votre_token"
 TELEGRAM_CHAT_ID = "votre_chat_id"
 VIDEO_PATH = "chemin/vers/video.mp4"
 MODEL_PATH = "yolov8n.pt"
 ALARM_SOUND_PATH = "static/sounds/alarm.wav"
+```
 
-4.Lancement :
+### 4️⃣ Lancement
 
+```bash
 python3 model.py
+```
 
-📡 Architecture
+---
 
-![Bannière du projet](static/images/banner.png)
+## 📡 Architecture
 
+```mermaid
 sequenceDiagram
     participant C as Caméra
     participant S as Serveur
@@ -110,40 +117,43 @@ sequenceDiagram
         S->>S: Déclenche alarme
     end
     S->>S: Mise à jour dashboard
+```
 
+---
 
+## 🚨 Fonctions d'Alerte
 
-    📊 Fonctions d'alerte
+| Niveau | Couleur  | Gravité | Description                   |
+|--------|---------|--------|--------------------------------|
+| Alpha  | 🔵 Bleu  | Faible  | Mouvement inhabituel          |
+| Beta   | 🟠 Orange | Moyenne | Objet suspect détecté        |
+| Gamma  | 🔴 Rouge  | Haute   | Activité dangereuse confirmée |
 
-Niveau	Couleur	Gravité	Description
-Alpha	Bleu	Faible	Mouvement inhabituel
-Beta	Orange	Moyenne	Objet suspect détecté
-Gamma	Rouge	Haute	Activité dangereuse confirmée
+---
 
+## 📄 Licence
 
-📄 Licence
+Ce projet est sous licence **MIT**. Voir le fichier `LICENSE` pour plus de détails.
 
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
+---
 
-<div align="center"> <img src="static/images/logo.png" width="200"> <p>© 2023 The Eye - Système de Surveillance Intelligente</p> </div> ```
-📷 Captures d'écran supplémentaires
+## 📷 Captures d'écran supplémentaires
 
-Filtres avancés
-Interface des filtres avancés
+- **Filtres avancés** : Interface des filtres avancés
+- **Alertes** : Gestion des alertes multi-niveaux
 
-Alertes
-Gestion des alertes multi-niveaux
+---
 
-🔗 Liens utiles
+## 🔗 Liens utiles
 
-Documentation YOLOv8
-API Telegram Bot
-OpenCV Documentation
-Ce README professionnel inclut :
+- [📚 Documentation YOLOv8](https://github.com/ultralytics/yolov8)
+- [🤖 API Telegram Bot](https://core.telegram.org/bots/api)
+- [📸 OpenCV Documentation](https://docs.opencv.org/)
 
-Des badges pour les technologies
-Des diagrammes Mermaid pour l'architecture
-Des captures d'écran
-Un tableau des niveaux d'alerte
-Des instructions d'installation claires
-Une structure de fichiers détaillée
+---
+
+<div align="center">
+    <img src="static/images/logo.png" width="200">
+    <p>© 2023 The Eye - Système de Surveillance Intelligente</p>
+</div>
+
