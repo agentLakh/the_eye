@@ -1,0 +1,232 @@
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #03060e;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+      
+      .main-container {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        height: 100vh;
+      }
+      
+      .sidebar {
+        background-color: #0f172a;
+        padding: 20px;
+        border-right: 1px solid #1e293b;
+      }
+      
+      .content {
+        display: grid;
+        grid-template-rows: auto 1fr 1fr;
+        gap: 15px;
+        padding: 15px;
+      }
+      
+      .cameras-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 10px;
+      }
+      
+      .video-stream {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 5px;
+      }
+      
+      .grid-1 {
+        grid-column: 1 / 3;
+        background-color: #1e293b;
+        padding: 15px;
+        border-radius: 5px;
+      }
+      
+      .grid-2 {
+        background-color: #1e293b;
+        padding: 15px;
+        border-radius: 5px;
+      }
+      
+      .grid-3 {
+        background-color: #1e293b;
+        padding: 15px;
+        border-radius: 5px;
+      }
+      
+      .grid-4 {
+        grid-column: 1 / 3;
+        background-color: #1e293b;
+        padding: 15px;
+        border-radius: 5px;
+      }
+      
+      .top-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      
+      .middle-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      
+      h1 {
+        color: white;
+        padding: 10px 0;
+        margin: 0;
+        text-align: center;
+        grid-column: 1 / 3;
+      }
+      
+      .menu-item {
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #1e293b;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      
+      .menu-item:hover {
+        background-color: #334155;
+      }
+      #detections-list li {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 8px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    #detections-list li:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    #detection-data {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    #speed-info {
+        color: #f39c12; /* Mettre en jaune pour attirer l'attention */
+    }
+
+    .button {
+      transition: background-color 0.3s, transform 0.2s ease;
+  }
+  
+  /* Couleur au survol pour chaque bouton */
+  .bg-green-500:hover {
+      background-color: #4CAF50; /* Couleur plus claire pour l'effet hover */
+      transform: scale(1.05);
+  }
+  
+  .bg-yellow-500:hover {
+      background-color: #FFEB3B; /* Couleur plus claire pour l'effet hover */
+      transform: scale(1.05);
+  }
+  
+  .bg-red-500:hover {
+      background-color: #F44336; /* Couleur plus claire pour l'effet hover */
+      transform: scale(1.05);
+  }
+
+  .filter-option {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #1a2a3a;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.filter-option:hover {
+    background: #2a3a4a;
+}
+.filter-option input {
+    margin-right: 8px;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 10px;
+    background: #1a2a3a;
+    border: 1px solid #2a3a4a;
+    border-radius: 6px;
+    color: rgb(0, 0, 0);
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #1a2a3a;
+    border-radius: 20px;
+    cursor: pointer;
+}
+.filter-chip input {
+    margin-right: 6px;
+}
+
+.filter-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #2a3a4a;
+}
+
+.filter-section {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #2a3a4a;
+    margin-bottom: 20px;
+}
+.filter-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.fullscreen-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  z-index: 10; /* Valeur réduite */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#filter-modal {
+  z-index: 1000; /* Valeur augmentée */
+  /* ... conservez vos autres styles ... */
+}
+
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100; /* Entre le bouton et la modale */
+  background-color: black;
+}

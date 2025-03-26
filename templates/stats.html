@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.amcharts.com/lib/editor/map/5/viewer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+
+    <style>
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background-color: black;
+        }
+        .fullscreen-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .camera-container {
+            position: relative;
+        }
+    </style>
+</head>
+<body class="bg-[#060913] text-white">
+    <div class="flex h-screen">
+        <!-- Barre latérale -->
+        <aside class="w-64 bg-[#060913] p-5">
+          <div class="mb-8 flex items-center space-x-3">
+              <img src="/static/images/eye.png" height="70px" width="70px" alt="Profil" class="rounded-full">
+              <span class="text-lg font-semibold">The Eye</span>
+          </div>
+          <nav class="space-y-4">
+              <a href="#" class="block p-3 bg-teal-600 rounded-lg flex items-center space-x-2">
+                  <img src="/static/images/dash.png" alt="Dashboard Icon" class="w-5 h-5"> <!-- Remplacez par votre icône -->
+                  <span>Dashboard</span>
+              </a>
+              <a href="#" id="filter-btn" class="block p-3 bg-gray-700 hover:bg-teal-600 rounded-lg flex items-center space-x-2">
+                <img src="/static/images/filter.png" alt="Settings Icon" class="w-5 h-5">
+                <span>Filtres</span>
+            </a>
+            
+            <!-- Popup Filtres (caché par défaut) -->
+            <div id="filter-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="bg-[#0c131f] rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <!-- En-tête -->
+                    <div class="sticky top-0 bg-[#060913] p-4 flex justify-between items-center border-b border-gray-700">
+                        <h3 class="text-xl font-bold text-white">Filtres Avancés</h3>
+                        <button id="close-filter" class="text-gray-400 hover:text-white">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Contenu des filtres -->
+                    <div class="p-6 space-y-6">
+                        <!-- Section 1 -->
+                        <div class="filter-section">
+                            <h4 class="text-lg font-semibold text-teal-400 mb-3 flex items-center">
+                                <i class="fas fa-calendar-alt mr-2"></i> Période
+                            </h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="filter-option">
+                                    <input type="checkbox" name="period" value="24h">
+                                    <span>24 dernières heures</span>
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" name="period" value="7d">
+                                    <span>7 derniers jours</span>
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" name="period" value="30d">
+                                    <span>30 derniers jours</span>
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" name="period" value="custom">
+                                    <span>Personnalisée</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                          <h4 class="text-lg font-semibold text-teal-400 mb-3 flex items-center">
+                              <i class="fas fa-calendar-alt mr-2"></i> Type de Surveillance
+                          </h4>
+                          <div class="grid grid-cols-2 gap-3">
+                              <label class="filter-option">
+                                  <input type="checkbox" name="period" value="24h">
+                                  <span>Fire Detection</span>
+                              </label>
+                              <label class="filter-option">
+                                  <input type="checkbox" name="period" value="7d">
+                                  <span>Migration detection</span>
+                              </label>
+                              <label class="filter-option">
+                                  <input type="checkbox" name="period" value="30d">
+                                  <span>City surveillance (Activités suspects, incendies, armes, vols, etc)</span>
+                              </label>
+                              <label class="filter-option">
+                                  <input type="checkbox" name="period" value="custom">
+                                  <span>Personnalisée</span>
+                              </label>
+                          </div>
+                      </div>
+            
+                        <!-- Section 2 -->
+                        <div class="filter-section">
+                            <h4 class="text-lg font-semibold text-teal-400 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2"></i> Localisation
+                            </h4>
+                            <div class="mb-4">
+                              <label class="block text-sm font-medium text-gray-300 mb-1">Localisation</label>
+                              <select class="w-full px-3 py-2 bg-[#1a2a3a] border border-gray-700 rounded-md text-white">
+                                  <option value="">Toutes Localisation</option>
+                                  <option value="nord">Dakar</option>
+                                  <option value="sud">Thies</option>
+                                  <option value="est">Diourbel</option>
+                                  <option value="ouest">Ziguinchor</option>
+                                  <option value="centre">Tambacounda</option>
+                              </select>
+                          </div>
+                        </div>
+
+                        <div class="filter-section">
+                          <h4 class="text-lg font-semibold text-teal-400 mb-3 flex items-center">
+                              <i class="fas fa-binoculars mr-2"></i> Surveillance Descriptive
+                          </h4>
+                          
+                          <!-- Champ de description -->
+                          <div class="mb-4">
+                              <label class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                              <input type="text" 
+                                     class="w-full px-3 py-2 bg-[#1a2a3a] border border-gray-700 rounded-md text-white" 
+                                     placeholder="Entrez une description qui sera decrypter par l'IA...">
+                          </div>
+                          
+                          <!-- Sélection de zone -->
+                          <div class="mb-4">
+                              <label class="block text-sm font-medium text-gray-300 mb-1">Zone</label>
+                              <select class="w-full px-3 py-2 bg-[#1a2a3a] border border-gray-700 rounded-md text-white">
+                                  <option value="">Toutes zones</option>
+                                  <option value="nord">Zone Nord</option>
+                                  <option value="sud">Zone Sud</option>
+                                  <option value="est">Zone Est</option>
+                                  <option value="ouest">Zone Ouest</option>
+                                  <option value="centre">Zone Centre</option>
+                              </select>
+                          </div>
+                          
+                          <!-- Période de temps -->
+                          <div class="mb-4">
+                              <label class="block text-sm font-medium text-gray-300 mb-1">Période</label>
+                              <div class="grid grid-cols-2 gap-3">
+                                  <input type="datetime-local" 
+                                         class="px-3 py-2 bg-[#1a2a3a] border border-gray-700 rounded-md text-white">
+                                  <input type="datetime-local" 
+                                         class="px-3 py-2 bg-[#1a2a3a] border border-gray-700 rounded-md text-white">
+                              </div>
+                          </div>
+                          
+                          <!-- Bouton de recherche -->
+                          <button class="w-full mt-4 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition">
+                              <i class="fas fa-search mr-2"></i> Rechercher
+                          </button>
+                      </div>
+            
+                        <!-- Section 3 -->
+                        <div class="filter-section">
+                            <h4 class="text-lg font-semibold text-teal-400 mb-3 flex items-center">
+                                <i class="fas fa-bell mr-2"></i> Type d'alerte
+                            </h4>
+                            <div class="flex flex-wrap gap-2">
+                                <label class="filter-chip">
+                                    <input type="checkbox" name="alert-type" value="alpha">
+                                    <span>Alpha</span>
+                                </label>
+                                <label class="filter-chip">
+                                    <input type="checkbox" name="alert-type" value="beta">
+                                    <span>Beta</span>
+                                </label>
+                                <label class="filter-chip">
+                                    <input type="checkbox" name="alert-type" value="gamma">
+                                    <span>Gamma</span>
+                                </label>
+                                <label class="filter-chip">
+                                    <input type="checkbox" name="alert-type" value="mouvement">
+                                    <span>Mouvement</span>
+                                </label>
+                            </div>
+                        </div>
+            
+                        <!-- Section 4 -->
+                        <div class="filter-section">
+                            <h4 class="text-lg font-semibold text-teal-400 mb-3 flex items-center">
+                                <i class="fas fa-sliders-h mr-2"></i> Options avancées
+                            </h4>
+                            <div class="space-y-3">
+                                <label class="filter-switch">
+                                    <input type="checkbox" name="show-heatmap">
+                                    <span>Activer la heatmap</span>
+                                </label>
+                                <label class="filter-switch">
+                                    <input type="checkbox" name="night-vision" checked>
+                                    <span>Vision nocturne</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Pied de page -->
+                    <div class="sticky bottom-0 bg-[#060913] p-4 flex justify-end space-x-3 border-t border-gray-700">
+                        <button id="reset-filters" class="px-4 py-2 text-gray-300 hover:text-white">
+                            Réinitialiser
+                        </button>
+                        <button id="apply-filters" class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+                            Appliquer
+                        </button>
+                    </div>
+                </div>
+            </div>
+              <a href="stats.html" class="block p-3 bg-gray-700 hover:bg-teal-600  rounded-lg flex items-center space-x-2">
+                  <img src="/static/images/stat.png" alt="Site Management Icon" class="w-5 h-5"> <!-- Remplacez par votre icône -->
+                  <span>Statistique descriptive</span>
+              </a>
+              <a href="#" class="block p-3 bg-gray-700 hover:bg-teal-600  rounded-lg flex items-center space-x-2">
+                  <img src="/static/images/proba.png" alt="Site Analytics Icon" class="w-5 h-5"> <!-- Remplacez par votre icône -->
+                  <span>Probabilités</span>
+              </a>
+              <a href="#" class="block p-3 bg-gray-700 hover:bg-teal-600  rounded-lg flex items-center space-x-2">
+                  <img src="/static/images/prediction.png" alt="Maintenance Icon" class="w-5 h-5"> <!-- Remplacez par votre icône -->
+                  <span>Prédictions</span>
+              </a>
+              <a href="#" class="block p-3 bg-gray-700 hover:bg-teal-600  rounded-lg flex items-center space-x-2">
+                  <img src="/static/images/conf.png" alt="Configuration Icon" class="w-5 h-5"> <!-- Remplacez par votre icône -->
+                  <span>Configuration</span>
+              </a>
+              <a href="#" class="block p-3 bg-red-600 rounded-lg flex items-center space-x-2">
+                  <img src="/static/images/logout.png" alt="Logout Icon" class="w-5 h-5"> <!-- Remplacez par votre icône -->
+                  <span>Logout</span>
+              </a>
+          </nav>
+      
+          <!-- Grid ajouté sous "Logout" -->
+          <div class="w-full max-w-md bg-[#0c131f] p-5 rounded-lg h-[280px] flex flex-col items-center overflow-y-auto mt-3">
+            <!-- Titre de la section -->
+            <h2 class="text-lg font-bold text-center text-white">Detection History</h2>
+            
+            <!-- Conteneur pour afficher les informations -->
+            <div id="detection-data" class="mt-4 w-full text-white">
+                <!-- Vitesse -->
+                <p id="speed-info" class="text-xs font-semibold mb-4 text-center">Speed: N/A</p>
+                
+                <!-- Liste des détections -->
+                <ul id="detections-list" class="space-y-2">
+                    <!-- Les éléments de détection seront ajoutés ici -->
+                </ul>
+            </div>
+        </div>
+    
+      </aside>
+      
+      
+
+        <!-- Contenu principal -->
+        <main class="flex-1 p-6">
+            <center><h1 class="text-3xl font-semibold mb-6">The Eye Interface 👁️ 💻</h1> </center>
+
+            <div class="flex gap-6">
+                <!-- Section Statistiques (Alignées à gauche) -->
+                <div class="grid grid-cols-2 gap-4 w-1/2">
+                  <div class="camera-container bg-[#060913] rounded-lg overflow-hidden h-40">
+                      <img class="w-full h-full object-cover" src="{{ url_for('video_feed', camera_id=1) }}" alt="Flux caméra 1" id="camera-1">
+                      <button class="fullscreen-btn" onclick="toggleFullscreen('camera-1')">
+                          <i class="fas fa-expand"></i>
+                      </button>
+                  </div>
+                  <div class="camera-container bg-[#0c131f] rounded-lg overflow-hidden h-40">
+                      <img class="w-full h-full object-cover" src="{{ url_for('video_feed', camera_id=2) }}" alt="Flux caméra 2" id="camera-2">
+                      <button class="fullscreen-btn" onclick="toggleFullscreen('camera-2')">
+                          <i class="fas fa-expand"></i>
+                      </button>
+                  </div>
+                  <div class="camera-container bg-[#0c131f] rounded-lg overflow-hidden h-40">
+                      <img class="w-full h-full object-cover" src="{{ url_for('video_feed', camera_id=3) }}" alt="Flux caméra 3" id="camera-3">
+                      <button class="fullscreen-btn" onclick="toggleFullscreen('camera-3')">
+                          <i class="fas fa-expand"></i>
+                      </button>
+                  </div>
+                  <div class="camera-container bg-[#0c131f] rounded-lg overflow-hidden h-40">
+                      <img class="w-full h-full object-cover" src="{{ url_for('video_feed', camera_id=4) }}" alt="Flux caméra 4" id="camera-4">
+                      <button class="fullscreen-btn" onclick="toggleFullscreen('camera-4')">
+                          <i class="fas fa-expand"></i>
+                      </button>
+                  </div>
+              </div>
+
+              <div class="w-2/3 bg-[#0c131f] p-5 rounded-lg h-70 flex items-center justify-center">
+                <div id="chartdiv" class="w-full h-[300px]"></div>
+            </div>
+            
+              
+            </div>
+
+            <!-- Graphiques et alertes -->
+            <div class="mt-6 grid grid-cols-2 gap-6">
+              <div class="bg-[#0c131f] p-5 rounded-lg h-64" style="position: relative;">
+                <h2 class="text-white text-lg font-semibold mb-4">Tendance par rapport au jours</h2>
+
+                <!-- Canvas pour Chart.js -->
+                <canvas id="myChart" height="350" width="1000" style="background-color: transparent;"></canvas>
+            
+            </div>
+            
+            <div class="bg-[#0c131f] p-5 rounded-lg h-64" style="position: relative;">
+              <!-- Titre du graphique -->
+              <p class="text-lg font-semibold text-white">Probable activités</p>
+          
+              <!-- Canvas pour Chart.js (Graphique en barres) -->
+              <canvas id="barChart" style="width: 100%; height: 90%; background-color: transparent;"></canvas>
+          </div>
+            </div>
+
+            <!-- Alertes -->
+            <div class="mt-4 grid grid-cols-3 gap-4">
+              <button class="bg-[#0c131f] p-4 rounded-lg button" id="patrol-alert">Alerter les patrouilles 📱</button>
+                <button class="bg-[#0c131f] p-4 rounded-lg button" id="thermal-vision">Activer la vision Thermique/Nocturne 🌡️</button>
+                <button class="bg-[#0c131f] p-4 rounded-lg button" id="drone-launch">Envoyer un Drone 🛩️</button>
+            </div>
+            <div class="mt-4 grid grid-cols-3 gap-4">
+              <button class="bg-teal-600 p-4 rounded-lg button flex items-center" onclick="showAlert('Alpha')">
+                  <i class="fa fa-bell mr-2"></i> Alerte niveau Alpha A : 12:04, Ngor
+              </button>
+              <button class="bg-[#CD7408] p-4 rounded-lg button flex items-center" onclick="showAlert('Beta')">
+                  <i class="fa fa-bell mr-2"></i> Alerte niveau Beta B : 12:05, Yoff
+              </button>
+              <button class="bg-[#A90055] p-4 rounded-lg button flex items-center" onclick="showAlert('Gamma')">
+                  <i class="fa fa-bell mr-2"></i> Alerte niveau Gamma Γ : 12:06, Mbour
+              </button>
+          </div>
+          
+          
+        </main>
+    </div>
+    <script>
+        // Gestion de la modale
+    document.getElementById('filter-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('filter-modal').classList.remove('hidden');
+    });
+
+    document.getElementById('close-filter').addEventListener('click', function() {
+        document.getElementById('filter-modal').classList.add('hidden');
+    });
+
+    document.getElementById('reset-filters').addEventListener('click', function() {
+        // Réinitialiser tous les filtres
+        document.querySelectorAll('#filter-modal input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    });
+
+    document.getElementById('apply-filters').addEventListener('click', function() {
+        // Récupérer les valeurs sélectionnées
+        const filters = {
+            period: Array.from(document.querySelectorAll('input[name="period"]:checked')).map(el => el.value),
+            locations: Array.from(document.querySelectorAll('.filter-select option:checked')).map(el => el.value),
+            alertTypes: Array.from(document.querySelectorAll('input[name="alert-type"]:checked')).map(el => el.value),
+            options: {
+                heatmap: document.querySelector('input[name="show-heatmap"]').checked,
+                nightVision: document.querySelector('input[name="night-vision"]').checked
+            }
+        };
+        
+        console.log('Filtres appliqués:', filters);
+        document.getElementById('filter-modal').classList.add('hidden');
+        
+        // Ici vous pouvez ajouter le code pour appliquer les filtres à votre dashboard
+    });
+
+    // Fermer la modale en cliquant à l'extérieur
+    document.getElementById('filter-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+        }
+    });
+        // Fonction pour basculer en plein écran
+        function toggleFullscreen(cameraId) {
+            const camera = document.getElementById(cameraId);
+            
+            if (camera.classList.contains('fullscreen')) {
+                // Quitter le mode plein écran
+                camera.classList.remove('fullscreen');
+                camera.style.objectFit = 'cover';
+                camera.parentElement.style.position = 'relative';
+            } else {
+                // Activer le mode plein écran
+                camera.classList.add('fullscreen');
+                camera.style.objectFit = 'contain';
+                camera.parentElement.style.position = 'static';
+            }
+        }
+
+        document.getElementById("drone-launch").addEventListener("click", () => {
+            const codeCorrect = "1234"; // Remplace par ton code d'accès
+            const userCode = prompt("Veuillez saisir le code de lancement du drone 🚀 :");
+
+            if (userCode === codeCorrect) {
+                alert("Drone en cours de lancement...");
+                // Ajoute ici la fonction pour réellement lancer le drone
+            } else {
+                alert("Code incorrect. Accès refusé !");
+            }
+        });
+        
+        document.getElementById("thermal-vision").addEventListener("click", () => {
+            alert("Fonctionnalité 'Activer la vision thermique' non implémentée.");
+        });
+
+        function showAlert(level) {
+            alert(`Alerte de niveau ${level} activée!`);
+        }
+
+        // Fonction pour récupérer les données de détection
+        async function fetchDetectionData() {
+            try {
+                const response = await fetch("/detection_data");
+                const data = await response.json();
+
+                // Afficher les informations de vitesse
+                document.getElementById("speed-info").textContent = data.speed;
+
+                // Afficher les détections
+                const detectionsList = document.getElementById("detections-list");
+                detectionsList.innerHTML = ""; // Effacer la liste précédente
+                data.detections.forEach((detection) => {
+                    const li = document.createElement("li");
+                    li.textContent = `${detection.label} (${(detection.confidence * 100).toFixed(
+                    2
+                    )}%)`;
+                    detectionsList.appendChild(li);
+                });
+            } catch (error) {
+                console.error(
+                "Erreur lors de la récupération des données de détection :",
+                error
+                );
+            }
+        }
+
+        // Mettre à jour les données toutes les secondes
+        setInterval(fetchDetectionData, 1000);
+        
+        var ctx = document.getElementById('barChart').getContext('2d');
+        var barChart = new Chart(ctx, {
+            type: 'bar',  // Type de graphique : barres
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],  // Labels pour l'axe X
+                datasets: [{
+                    label: 'Page Load Time (s)',  // Légende du graphique
+                    data: [2.5, 3.1, 2.7, 3.8, 2.4, 2.9],  // Données pour l'axe Y (temps de chargement en secondes)
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',  // Couleur des barres
+                    borderColor: 'rgba(75, 192, 192, 1)',  // Bordure des barres
+                    borderWidth: 1  // Épaisseur de la bordure
+                }]
+            },
+            options: {
+                responsive: true,  // Graphique responsive
+                plugins: {
+                    legend: {
+                        display: true  // Masquer la légende
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true  // L'axe X commence à zéro
+                    },
+                    y: {
+                        beginAtZero: true  // L'axe Y commence à zéro
+                    }
+                }
+            }
+        });
+        
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',  // Type de graphique (ici un graphique linéaire)
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],  // Labels pour l'axe X
+                datasets: [{
+                    label: 'Server Requests',  // Légende de la courbe
+                    data: [12, 19, 3, 5, 2, 3, 8],  // Données pour l'axe Y
+                    borderColor: 'rgba(75, 192, 192, 1)',  // Couleur de la courbe
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Couleur de fond de la courbe
+                    borderWidth: 1,  // Épaisseur de la courbe
+                    tension: 0.1  // Lissage de la courbe
+                },
+                {
+                    label: 'Client Requests',  // Nouvelle légende pour la deuxième courbe
+                    data: [5, 9, 2, 3, 7, 1, 4],  // Données pour la deuxième courbe
+                    borderColor: '#CD7408',  // Couleur de la courbe
+                    backgroundColor: 'rgba(205, 116, 8, 0.2)',  // Couleur de fond de la courbe
+                    borderWidth: 1,  // Épaisseur de la courbe
+                    tension: 0.1  // Lissage de la courbe
+                }]
+            },
+            options: {
+                responsive: true,  // Rendre le graphique responsive
+                plugins: {
+                    legend: {
+                        display: true  // Afficher la légende
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true  // Commencer l'axe Y à zéro
+                    }
+                }
+            }
+        });
+        
+        am5.ready(function() {
+
+// Create root element
+// https://www.amcharts.com/docs/v5/getting-started/#Root_element
+var root = am5.Root.new("chartdiv");
+
+
+// Set themes
+// https://www.amcharts.com/docs/v5/concepts/themes/
+root.setThemes([
+  am5themes_Animated.new(root)
+]);
+
+
+// Create the map chart
+// https://www.amcharts.com/docs/v5/charts/map-chart/
+var chart = root.container.children.push(am5map.MapChart.new(root, {
+  panX: "translateX",
+  panY: "translateY",
+  projection: am5map.geoMercator()
+}));
+
+var cont = chart.children.push(am5.Container.new(root, {
+  layout: root.horizontalLayout,
+  x: 20,
+  y: 40
+}));
+
+
+// Add labels and controls
+cont.children.push(am5.Label.new(root, {
+  centerY: am5.p50,
+  text: "Map"
+}));
+
+var switchButton = cont.children.push(am5.Button.new(root, {
+  themeTags: ["switch"],
+  centerY: am5.p50,
+  icon: am5.Circle.new(root, {
+    themeTags: ["icon"]
+  })
+}));
+
+switchButton.on("active", function() {
+  if (!switchButton.get("active")) {
+    chart.set("projection", am5map.geoMercator());
+    chart.set("panX", "translateX");
+    chart.set("panY", "translateY");
+  }
+  else {
+    chart.set("projection", am5map.geoOrthographic());
+    chart.set("panX", "rotateX");
+    chart.set("panY", "rotateY");
+  }
+});
+
+cont.children.push(am5.Label.new(root, {
+  centerY: am5.p50,
+  text: "Globe"
+}));
+
+// Create main polygon series for countries
+// https://www.amcharts.com/docs/v5/charts/map-chart/map-polygon-series/
+var polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {
+  geoJSON: am5geodata_worldLow
+}));
+
+var graticuleSeries = chart.series.push(am5map.GraticuleSeries.new(root, {}));
+graticuleSeries.mapLines.template.setAll({
+  stroke: root.interfaceColors.get("alternativeBackground"),
+  strokeOpacity: 0.08
+});
+
+// Create line series for trajectory lines
+// https://www.amcharts.com/docs/v5/charts/map-chart/map-line-series/
+
+// this will be invisible line (note strokeOpacity = 0) along which invisible points will animate
+var lineSeries = chart.series.push(am5map.MapLineSeries.new(root, {}));
+lineSeries.mapLines.template.setAll({
+  stroke: root.interfaceColors.get("alternativeBackground"),
+  strokeOpacity: 0
+});
+
+// this will be visible line. Lines will connectg animating points so they will look like animated
+var animatedLineSeries = chart.series.push(am5map.MapLineSeries.new(root, {}));
+animatedLineSeries.mapLines.template.setAll({
+  stroke: root.interfaceColors.get("alternativeBackground"),
+  strokeOpacity: 0.6
+});
+
+// destination series
+var citySeries = chart.series.push(
+  am5map.MapPointSeries.new(root, {})
+);
+
+// visible city circles
+citySeries.bullets.push(function() {
+  var circle = am5.Circle.new(root, {
+    radius: 5,
+    tooltipText: "{title}",
+    tooltipY: 0,
+    fill: am5.color(0xffba00),
+    stroke: root.interfaceColors.get("background"),
+    strokeWidth: 2
+  });
+
+  return am5.Bullet.new(root, {
+    sprite: circle
+  });
+});
+
+// invisible series which will animate along invisible lines
+var animatedBulletSeries = chart.series.push(
+  am5map.MapPointSeries.new(root, {})
+);
+
+animatedBulletSeries.bullets.push(function() {
+  var circle = am5.Circle.new(root, {
+    radius: 0
+  });
+
+  return am5.Bullet.new(root, {
+    sprite: circle
+  });
+});
+
+
+var cities = [
+  {
+    id: "london",
+    title: "London",
+    geometry: { type: "Point", coordinates: [-0.1262, 51.5002] },
+  },
+  {
+    id: "brussels",
+    title: "Brussels",
+    geometry: { type: "Point", coordinates: [4.3676, 50.8371] }
+  }, {
+    id: "prague",
+    title: "Prague",
+    geometry: { type: "Point", coordinates: [14.4205, 50.0878] }
+  }, {
+    id: "athens",
+    title: "Athens",
+    geometry: { type: "Point", coordinates: [23.7166, 37.9792] }
+  }, {
+    id: "reykjavik",
+    title: "Reykjavik",
+    geometry: { type: "Point", coordinates: [-21.8952, 64.1353] }
+  }, {
+    id: "dublin",
+    title: "Dublin",
+    geometry: { type: "Point", coordinates: [-6.2675, 53.3441] }
+  }, {
+    id: "oslo",
+    title: "Oslo",
+    geometry: { type: "Point", coordinates: [10.7387, 59.9138] }
+  }, {
+    id: "lisbon",
+    title: "Lisbon",
+    geometry: { type: "Point", coordinates: [-9.1355, 38.7072] }
+  }, {
+    id: "moscow",
+    title: "Moscow",
+    geometry: { type: "Point", coordinates: [37.6176, 55.7558] }
+  }, {
+    id: "belgrade",
+    title: "Belgrade",
+    geometry: { type: "Point", coordinates: [20.4781, 44.8048] }
+  }, {
+    id: "bratislava",
+    title: "Bratislava",
+    geometry: { type: "Point", coordinates: [17.1547, 48.2116] }
+  }, {
+    id: "ljublana",
+    title: "Ljubljana",
+    geometry: { type: "Point", coordinates: [14.5060, 46.0514] }
+  }, {
+    id: "madrid",
+    title: "Madrid",
+    geometry: { type: "Point", coordinates: [-3.7033, 40.4167] }
+  }, {
+    id: "stockholm",
+    title: "Stockholm",
+    geometry: { type: "Point", coordinates: [18.0645, 59.3328] }
+  }, {
+    id: "bern",
+    title: "Bern",
+    geometry: { type: "Point", coordinates: [7.4481, 46.9480] }
+  }, {
+    id: "kiev",
+    title: "Kiev",
+    geometry: { type: "Point", coordinates: [30.5367, 50.4422] }
+  }, {
+    id: "paris",
+    title: "Paris",
+    geometry: { type: "Point", coordinates: [2.3510, 48.8567] }
+  }, {
+    id: "new york",
+    title: "New York",
+    geometry: { type: "Point", coordinates: [-74, 40.43] }
+  }];
+
+citySeries.data.setAll(cities);
+
+// Prepare line series data
+var destinations = ["reykjavik", "lisbon", "moscow", "belgrade", "ljublana", "madrid", "stockholm", "bern", "kiev", "new york"];
+
+// London coordinates
+var originLongitude = -0.1262;
+var originLatitude = 51.5002;
+
+var londonDataItem = citySeries.getDataItemById("london");
+
+// this will do all the animations
+am5.array.each(destinations, function(did) {
+  var destinationDataItem = citySeries.getDataItemById(did);
+  var lineDataItem = lineSeries.pushDataItem({});
+  lineDataItem.set("pointsToConnect", [londonDataItem, destinationDataItem])
+
+  var startDataItem = animatedBulletSeries.pushDataItem({});
+  startDataItem.setAll({
+    lineDataItem: lineDataItem,
+    positionOnLine: 0
+  });
+
+  var endDataItem = animatedBulletSeries.pushDataItem({});
+  endDataItem.setAll({
+    lineDataItem: lineDataItem,
+    positionOnLine: 1
+  });
+
+  var animatedLineDataItem = animatedLineSeries.pushDataItem({});
+  animatedLineDataItem.set("pointsToConnect", [startDataItem, endDataItem])
+
+  var lon0 = londonDataItem.get("longitude");
+  var lat0 = londonDataItem.get("latitude");
+
+  var lon1 = destinationDataItem.get("longitude");
+  var lat1 = destinationDataItem.get("latitude");
+
+
+  var distance = Math.hypot(lon1 - lon0, lat1 - lat0);
+  var duration = distance * 100;
+
+  animateStart(startDataItem, endDataItem, duration);
+});
+
+function animateStart(startDataItem, endDataItem, duration) {
+
+  var startAnimation = startDataItem.animate({
+    key: "positionOnLine",
+    from: 0,
+    to: 1,
+    duration: duration
+  });
+
+  startAnimation.events.on("stopped", function() {
+    animateEnd(startDataItem, endDataItem, duration);
+  });
+}
+
+function animateEnd(startDataItem, endDataItem, duration) {
+  startDataItem.set("positionOnLine", 0)
+  var endAnimation = endDataItem.animate({
+    key: "positionOnLine",
+    from: 0,
+    to: 1,
+    duration: duration
+  })
+
+  endAnimation.events.on("stopped", function() {
+    animateStart(startDataItem, endDataItem, duration);
+  });
+}
+
+polygonSeries.events.on("datavalidated", function() {
+  chart.zoomToGeoPoint({
+    longitude: -0.1262,
+    latitude: 51.5002
+  }, 3);
+});
+
+
+// Make stuff animate on load
+chart.appear(1000, 100);
+
+});
+        
+        function showPopup(title, message) {
+            document.getElementById("popup-title").innerText = title;
+            document.getElementById("popup-message").innerText = message;
+            document.getElementById("popup").classList.remove("hidden");
+        }
+
+        function closePopup() {
+            document.getElementById("popup").classList.add("hidden");
+        }
+
+        const SECURITY_CODE = "1234"; // Code de sécurité prédéfini
+
+        document.getElementById("patrol-alert").addEventListener("click", async () => {
+            // Demander à l'utilisateur de saisir le code de sécurité
+            const userCode = prompt(
+            "Veuillez entrer le code de sécurité pour envoyer l'alerte :"
+            );
+
+            // Vérifier si le code est correct
+            if (userCode === SECURITY_CODE) {
+                try {
+                    // Envoyer une requête à la route Flask pour déclencher la notification
+                    const response = await fetch("/send_alert", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({}), // Aucune donnée à envoyer
+                    });
+
+                    const result = await response.json();
+                    alert(result.message); // Afficher le message de succès
+                } catch (error) {
+                    console.error("Erreur lors de l'envoi de l'alerte :", error);
+                    alert("Erreur lors de l'envoi de l'alerte.");
+                }
+            } else {
+                // Code incorrect
+                alert("Code de sécurité incorrect. Accès refusé !");
+            }
+        });
+    </script>
+</body>
+</html>
