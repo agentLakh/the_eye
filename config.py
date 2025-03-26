@@ -6,8 +6,8 @@ TELEGRAM_CHAT_ID = "5935955202"
 
 # Chemins des fichiers
 VIDEO_PATH = "VideoTest/dday.mp4"
-MODEL_PATH = "yolo11n.pt"
-ALARM_SOUND_PATH = "alarm.wav"
+MODEL_PATH = "Model_data/yolo11n.pt"
+ALARM_SOUND_PATH = "static/son/alarm.wav"
 
 # Paramètres de détection
 DETECTION_WINDOW = 10  # Période d'analyse en secondes
