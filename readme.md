@@ -153,7 +153,7 @@ Ce projet est sous licence **MIT**. Voir le fichier `LICENSE` pour plus de déta
 ---
 
 <div align="center">
-    <img src="static/images/logo.png" width="200">
+    <img src="static/images/eye.png" width="200">
     <p>© 2023 The Eye - Système de Surveillance Intelligente</p>
 </div>
 
