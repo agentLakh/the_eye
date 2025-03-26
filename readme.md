@@ -1,6 +1,6 @@
-# 🚀 The Eye - Système de Surveillance Intelligente Avancé
+# 👁️ The Eye - Système de Surveillance Intelligente Avancé
 
-![Bannière du projet](static/images/banner.png)
+![Bannière du projet](static/images/banner.jpg)
 
 **The Eye** est une plateforme complète alliant surveillance en temps réel et prédiction d'activités suspectes grâce à des modèles de machine learning avancés.
 
@@ -53,7 +53,7 @@ graph TD
 
 ## 🖥️ Interface Utilisateur
 
-![Interface](static/images/banner.png)
+![Interface](static/images/interface.png)
 
 L'interface comprend :
 
